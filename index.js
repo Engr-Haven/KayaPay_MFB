@@ -5,17 +5,20 @@ dotenv.config();
 
 const { connectDB } = require("./Config/databaseConfig");
 
+// ROUTES IMPORTS >>>
 const BVNroute = require("./Routes/bvnRoute");
 const NINroute = require("./Routes/ninRoute");
+const authRoute = require("./Routes/authRoute");
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Routes >>>
+// Routes use >>>
 app.use("/bvn", BVNroute);
 app.use("/nin", NINroute);
+app.use("/auth", authRoute);
 
 // KayaPay API Root Endpoint >>>
 app.get("/kayapay", (req, res) => {
