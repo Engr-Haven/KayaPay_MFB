@@ -6,6 +6,7 @@ dotenv.config();
 const { connectDB } = require("./Config/databaseConfig");
 
 const BVNroute = require("./Routes/bvnRoute");
+const NINroute = require("./Routes/ninRoute");
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // Routes >>>
 app.use("/bvn", BVNroute);
+app.use("/nin", NINroute);
 
 // KayaPay API Root Endpoint >>>
 app.get("/kayapay", (req, res) => {

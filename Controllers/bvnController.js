@@ -10,11 +10,24 @@ exports.createBVN = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    if (!/^\d{11}$/.test(bvn)) {
+    const namePattern = /^[A-Za-z]{2,50}$/;
+
+    if (
+      typeof firstname !== "string" ||
+      typeof lastname !== "string" ||
+      !namePattern.test(firstname) ||
+      !namePattern.test(lastname)
+    ) {
+      return res.status(400).json({
+        message: "First name and last name must contain letters only",
+      });
+    }
+
+    if (typeof bvn !== "string" || !/^\d{11}$/.test(bvn)) {
       return res.status(400).json({ message: "BVN must be exactly 11 digits" });
     }
 
-    if (!/^\d{11}$/.test(phone)) {
+    if (typeof phone !== "string" || !/^\d{11}$/.test(phone)) {
       return res
         .status(400)
         .json({ message: "Phone number must be exactly 11 digits" });
@@ -26,6 +39,35 @@ exports.createBVN = async (req, res) => {
       return res.status(400).json({ message: "BVN already exists" });
     }
 
+    // Date Validation - to check if a date is real and not in the future >>>
+    const inputDate = new Date(dob);
+    const currentDate = new Date();
+
+    if (Number.isNaN(inputDate.getTime()) || inputDate > currentDate) {
+      return res
+        .status(400)
+        .json({ message: "Date of birth must be a valid date" });
+    }
+
+    // Age Validation - to check if a customer is at least 18 years old >>>
+    let age = currentDate.getFullYear() - inputDate.getFullYear();
+
+    const hasHadBirthday =
+      currentDate.getMonth() > inputDate.getMonth() ||
+      (currentDate.getMonth() === inputDate.getMonth() &&
+        currentDate.getDate() >= inputDate.getDate());
+
+    if (!hasHadBirthday) {
+      age--;
+    }
+
+    if (age < 18) {
+      return res
+        .status(400)
+        .json({ message: "Customer must be at least 18 years old" });
+    }
+
+    // Call the external service to register BVN >>>
     const response = await fetch(
       "https://nibssbyphoenix.onrender.com/api/insertBvn",
       {
@@ -92,6 +134,25 @@ exports.updateCustomersData = async (req, res) => {
       return res
         .status(400)
         .json({ message: "First name and last name are required" });
+    }
+
+    const namePattern = /^[A-Za-z]{2,50}$/;
+
+    if (
+      typeof firstname !== "string" ||
+      typeof lastname !== "string" ||
+      !namePattern.test(firstname) ||
+      !namePattern.test(lastname)
+    ) {
+      return res.status(400).json({
+        message: "First name and last name must contain letters only",
+      });
+    }
+
+    if (!/^\d{11}$/.test(bvn)) {
+      return res.status(400).json({
+        message: "BVN must be exactly 11 digits",
+      });
     }
 
     // Check if BVN exists in the database >>>
